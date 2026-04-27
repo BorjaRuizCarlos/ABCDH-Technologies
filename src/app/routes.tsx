@@ -24,6 +24,7 @@ const Reports = lazy(() => import('./pages/Reports'));
 const Alerts = lazy(() => import('./pages/Alerts'));
 const CreateUsers = lazy(() => import('./pages/CreateUsers'));
 const GitHub = lazy(() => import('./pages/GitHub'));
+const AzureRet = lazy(() => import('./pages/AzureRet'));
 
 function withSuspense(Component: React.LazyExoticComponent<React.ComponentType>, Fallback: React.ComponentType = GenericPageSkeleton) {
   return (
@@ -56,6 +57,7 @@ export const router = createBrowserRouter([
       { path: 'alerts', element: withSuspense(Alerts) },
       { path: 'users', element: withSuspense(CreateUsers) },
       { path: 'github', element: withSuspense(GitHub) },
+      { path: 'azure-ret', element: withSuspense(AzureRet) },
     ],
   },
   {

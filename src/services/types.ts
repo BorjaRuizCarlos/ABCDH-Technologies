@@ -246,6 +246,32 @@ export interface ApiGithubContent {
   download_url?: string;
 }
 
+// ─── Azure DevOps integration ────────────────────────────────────────────────
+
+export interface DevOpsOAuthStartResponse {
+  authorize_url: string;
+  state: string;
+}
+
+export interface DevOpsOAuthCallbackPayload {
+  code: string;
+  state: string;
+  organization?: string;
+}
+
+export interface DevOpsOAuthCallbackResponse {
+  connection_id: number;
+  subscriptions_registered: number;
+}
+
+export interface DevOpsStory {
+  id: string;
+  title: string;
+  status: string;
+  project: string;
+  [key: string]: unknown;
+}
+
 // ─── API error shape ─────────────────────────────────────────────────────────
 
 export interface ApiError {

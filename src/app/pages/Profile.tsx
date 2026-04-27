@@ -2,7 +2,7 @@
 import { useNavigate } from 'react-router';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
-import { User, Mail, Shield, Moon, Sun, Lock, Loader2, KeyRound, X } from 'lucide-react';
+import { User, Mail, Shield, Moon, Sun, Lock, Loader2, KeyRound, X, Cloud } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion } from 'motion/react';
 import { useApiProjectMembers, useApiProjects } from '../hooks/useProjectData';
@@ -318,6 +318,31 @@ export default function Profile() {
           <div className="bg-card border border-border rounded-[4px] p-4">
             <h2 className="text-[12px] font-semibold text-foreground mb-3">GitHub</h2>
             <GitHubConnectSection />
+          </div>
+
+          <div className="bg-card border border-border rounded-[4px] p-4">
+            <h2 className="text-[12px] font-semibold text-foreground mb-2">Microsoft Azure</h2>
+            <div className="rounded-[4px] border border-border p-3 bg-surface-secondary/30">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-start gap-2">
+                  <Cloud className="w-3.5 h-3.5 text-muted-foreground mt-0.5" />
+                  <div>
+                    <p className="text-[12px] font-medium text-foreground">Conectar Azure</p>
+                    <p className="text-[10px] text-muted-foreground">
+                      Accede a tu información de Microsoft Azure.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => navigate('/azure-ret')}
+                  className="h-7 px-3 bg-primary hover:bg-primary-hover text-primary-foreground rounded-[3px] text-[11px] font-medium transition-colors inline-flex items-center gap-1.5 shrink-0"
+                >
+                  <Cloud className="w-3.5 h-3.5" />
+                  Acceder
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
