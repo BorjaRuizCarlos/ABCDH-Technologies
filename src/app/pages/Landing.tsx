@@ -10,8 +10,10 @@ import {
   Zap,
   Globe,
   GitBranch,
-  Layers
+  Layers,
+  ChevronRight
 } from 'lucide-react';
+import { LandingDemo } from '../components/LandingDemo';
 
 export default function Landing() {
   const features = [
@@ -73,6 +75,7 @@ export default function Landing() {
           </div>
           <nav className="hidden md:flex items-center gap-6" aria-label="Navegación principal">
             <a href="#features" className="text-[12px] text-muted-foreground hover:text-foreground transition-colors">Funciones</a>
+            <a href="#demo" className="text-[12px] text-muted-foreground hover:text-foreground transition-colors">Demo</a>
             <a href="#how-it-works" className="text-[12px] text-muted-foreground hover:text-foreground transition-colors">Cómo funciona</a>
             <a href="#testimonios" className="text-[12px] text-muted-foreground hover:text-foreground transition-colors">Testimonios</a>
           </nav>
@@ -113,60 +116,20 @@ export default function Landing() {
               Acceder a la plataforma
               <ArrowRight className="w-4 h-4" />
             </Link>
+            <a
+              href="#demo"
+              className="px-6 py-2.5 bg-secondary hover:bg-accent text-foreground rounded-[3px] text-[13px] font-medium transition-colors inline-flex items-center gap-2"
+            >
+              Ver demo interactivo
+              <ChevronRight className="w-4 h-4" />
+            </a>
           </div>
 
 
-        </div>
-
-        {/* Hero Dashboard Preview */}
-        <div className="mt-14 max-w-4xl mx-auto">
-          <div className="rounded-[4px] border border-border bg-card p-1.5 shadow-sm">
-            <div className="bg-secondary/60 rounded-[4px] overflow-hidden">
-              {/* Mock browser bar */}
-              <div className="flex items-center gap-1.5 px-4 py-2.5 border-b border-border/50 bg-card/60">
-                <div className="w-2.5 h-2.5 rounded-full bg-destructive/40" />
-                <div className="w-2.5 h-2.5 rounded-full bg-warning/40" />
-                <div className="w-2.5 h-2.5 rounded-full bg-success/40" />
-                <div className="flex-1 ml-3">
-                  <div className="max-w-xs mx-auto bg-background/70 rounded px-3 py-1 text-[10px] text-muted-foreground text-center">
-                    pi.abcdhtechnologies.com/dashboard
-                  </div>
-                </div>
-              </div>
-              {/* Mock dashboard content */}
-              <div className="p-5 space-y-4">
-                {/* Mock KPI cards */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  {[
-                    { label: 'Avance', value: '62%', trend: '+4.3%', color: 'text-success' },
-                    { label: 'Presupuesto', value: '79%', trend: '+3.8%', color: 'text-success' },
-                    { label: 'En Riesgo', value: '3', trend: '+1', color: 'text-warning' },
-                    { label: 'Desviación', value: '-3.2%', trend: '±1.5%', color: 'text-muted-foreground' },
-                  ].map((kpi, i) => (
-                    <div key={i} className="bg-card rounded-[4px] border border-border/60 p-3">
-                      <p className="text-[9px] uppercase tracking-wider text-muted-foreground mb-1">{kpi.label}</p>
-                      <p className="text-lg font-semibold text-foreground">{kpi.value}</p>
-                      <p className={`text-[9px] ${kpi.color}`}>{kpi.trend}</p>
-                    </div>
-                  ))}
-                </div>
-                {/* Mock chart area */}
-                <div className="bg-card rounded-[4px] border border-border/60 p-4 h-24 sm:h-32 flex items-end gap-1">
-                  {[40, 55, 50, 62, 58, 70, 65, 75, 72, 80, 78, 85].map((h, i) => (
-                    <div
-                      key={i}
-                      className="flex-1 bg-primary/20 rounded-t"
-                      style={{ height: `${h}%` }}
-                    >
-                      <div className="w-full bg-primary/60 rounded-t" style={{ height: '60%' }} />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
       </section>
+
+      <LandingDemo />
 
       {/* Stats Bar */}
       <section className="border-y border-border bg-card/50">

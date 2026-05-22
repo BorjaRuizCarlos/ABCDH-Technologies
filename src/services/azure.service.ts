@@ -1,4 +1,4 @@
-import { api, tokenStore } from './api';
+import { api } from './api';
 import type {
   DevOpsOAuthStartResponse,
   DevOpsOAuthCallbackPayload,
