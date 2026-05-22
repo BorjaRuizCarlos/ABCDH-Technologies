@@ -2,13 +2,13 @@
 import { useNavigate } from 'react-router';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
-import { User, Mail, Shield, Moon, Sun, Lock, Loader2, KeyRound, X, Cloud } from 'lucide-react';
+import { User, Mail, Shield, Moon, Sun, Lock, Loader2, KeyRound, X, Cloud, Crown } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion } from 'motion/react';
 import { useApiProjectMembers, useApiProjects } from '../hooks/useProjectData';
 import { StatusBadge } from '../components/StatusBadge';
 import { GitHubConnectSection } from '../components/GitHubConnectSection';
-import { usersService } from '../../services';
+import { paymentsService, usersService } from '../../services';
 import { getUserRoleLabel } from '../utils/roles';
 import { compareProjectsForGenericPriority, getProjectStatusBadge, getProjectStatusLabel, shouldShowInGenericProjectDisplays } from '../utils/projectStatus';
 import { formatProjectDate, getProjectDaysLabel } from '../utils/projectDates';
@@ -21,6 +21,8 @@ export default function Profile() {
   const [saving, setSaving] = useState(false);
   const [showSecurityModal, setShowSecurityModal] = useState(false);
   const [securitySaving, setSecuritySaving] = useState(false);
+  const [loadingPremium, setLoadingPremium] = useState(false);
+  const [isPremium, setIsPremium] = useState(false);
   const [formData, setFormData] = useState({
     name: user?.name || '',
     email: user?.email || '',
@@ -48,6 +50,34 @@ export default function Profile() {
       email: user?.email || '',
     });
   }, [user?.name, user?.email]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadPremiumStatus = async () => {
+      if (!user) {
+        setIsPremium(false);
+        return;
+      }
+
+      try {
+        const account = await usersService.me();
+        if (!cancelled) {
+          setIsPremium(Boolean(account.is_premium));
+        }
+      } catch {
+        if (!cancelled) {
+          setIsPremium(false);
+        }
+      }
+    };
+
+    loadPremiumStatus();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
 
   const roleLabel = useMemo(() => (user ? getUserRoleLabel(user.role) : 'Usuario'), [user]);
 
@@ -120,6 +150,20 @@ export default function Profile() {
       toast.error('Error al actualizar la contraseña');
     } finally {
       setSecuritySaving(false);
+    }
+  };
+
+  const handlePremiumCheckout = async () => {
+    if (!userId) return;
+
+    setLoadingPremium(true);
+    try {
+      const { checkout_url } = await paymentsService.createCheckoutSession('monthly');
+      window.location.href = checkout_url;
+    } catch {
+      toast.error('No se pudo iniciar el pago premium');
+    } finally {
+      setLoadingPremium(false);
     }
   };
 
@@ -342,6 +386,35 @@ export default function Profile() {
                   Acceder
                 </button>
               </div>
+            </div>
+
+            <div className="mt-3 pt-3 border-t border-border">
+              {isPremium ? (
+                <div className="flex items-center justify-between gap-3 rounded-[4px] border border-success/20 bg-success/10 px-3 py-2.5">
+                  <div className="flex items-start gap-2">
+                    <Crown className="w-3.5 h-3.5 text-success mt-0.5" />
+                    <div>
+                      <p className="text-[12px] font-medium text-foreground">Premium activo</p>
+                      <p className="text-[10px] text-muted-foreground">Tienes acceso habilitado a las features premium.</p>
+                    </div>
+                  </div>
+                  <StatusBadge status="success" text="Activo" size="sm" variant="pill" />
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handlePremiumCheckout}
+                  disabled={loadingPremium}
+                  className="w-full h-8 px-3 bg-secondary hover:bg-accent text-foreground rounded-[3px] text-[11px] font-medium transition-colors inline-flex items-center justify-center gap-1.5 disabled:opacity-50"
+                >
+                  {loadingPremium ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <Crown className="w-3.5 h-3.5 text-primary" />
+                  )}
+                  Premium
+                </button>
+              )}
             </div>
           </div>
         </div>

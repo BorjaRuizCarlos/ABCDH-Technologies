@@ -3,6 +3,7 @@ export { api, tokenStore, ApiRequestError, AUTH_SESSION_EXPIRED_EVENT } from './
 export { authService } from './auth.service';
 export { githubService } from './github.service';
 export { azureService } from './azure.service';
+export { paymentsService } from './payments.service';
 export { projectsService } from './projects.service';
 export { tasksService } from './tasks.service';
 export { usersService } from './users.service';

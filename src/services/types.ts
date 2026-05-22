@@ -7,6 +7,7 @@ export interface ApiUserAccount {
   created_at: string;
   system_role: number;
   system_role_name: string;
+  is_premium?: boolean;
   github_connected?: boolean;
   is_github_connected?: boolean;
   github_login?: string | null;
@@ -147,6 +148,10 @@ export interface ApiActivityLog {
   entity_id: number | null;
   action: string | null;
   created_at: string;
+}
+
+export interface CreateCheckoutSessionResponse {
+  checkout_url: string;
 }
 
 // ─── Auth response shapes ────────────────────────────────────────────────────

@@ -25,6 +25,8 @@ const Alerts = lazy(() => import('./pages/Alerts'));
 const CreateUsers = lazy(() => import('./pages/CreateUsers'));
 const GitHub = lazy(() => import('./pages/GitHub'));
 const AzureRet = lazy(() => import('./pages/AzureRet'));
+const PaymentSuccess = lazy(() => import('./pages/PaymentSuccess'));
+const PaymentCancel = lazy(() => import('./pages/PaymentCancel'));
 
 function withSuspense(Component: React.LazyExoticComponent<React.ComponentType>, Fallback: React.ComponentType = GenericPageSkeleton) {
   return (
@@ -58,6 +60,8 @@ export const router = createBrowserRouter([
       { path: 'users', element: withSuspense(CreateUsers) },
       { path: 'github', element: withSuspense(GitHub) },
       { path: 'azure-ret', element: withSuspense(AzureRet) },
+      { path: 'payment/success', element: withSuspense(PaymentSuccess) },
+      { path: 'payment/cancel', element: withSuspense(PaymentCancel) },
     ],
   },
   {

@@ -12,6 +12,11 @@ export const usersService = {
     return api.get<ApiUserAccount>(`/user-accounts/${id}/`);
   },
 
+  /** GET /api/user-accounts/me/ */
+  me(): Promise<ApiUserAccount> {
+    return api.get<ApiUserAccount>('/user-accounts/me/');
+  },
+
   /** POST /api/user-accounts/ — Create a new user (admin only) */
   create(payload: { username: string; email: string; password: string; system_role?: number }): Promise<ApiUserAccount> {
     return api.post<ApiUserAccount>('/user-accounts/', payload);
