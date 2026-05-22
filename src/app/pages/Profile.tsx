@@ -8,7 +8,7 @@ import { motion } from 'motion/react';
 import { useApiProjectMembers, useApiProjects } from '../hooks/useProjectData';
 import { StatusBadge } from '../components/StatusBadge';
 import { GitHubConnectSection } from '../components/GitHubConnectSection';
-import { paymentsService, usersService } from '../../services';
+import { usersService } from '../../services';
 import { getUserRoleLabel } from '../utils/roles';
 import { compareProjectsForGenericPriority, getProjectStatusBadge, getProjectStatusLabel, shouldShowInGenericProjectDisplays } from '../utils/projectStatus';
 import { formatProjectDate, getProjectDaysLabel } from '../utils/projectDates';
@@ -21,7 +21,6 @@ export default function Profile() {
   const [saving, setSaving] = useState(false);
   const [showSecurityModal, setShowSecurityModal] = useState(false);
   const [securitySaving, setSecuritySaving] = useState(false);
-  const [loadingPremium, setLoadingPremium] = useState(false);
   const [isPremium, setIsPremium] = useState(false);
   const [formData, setFormData] = useState({
     name: user?.name || '',
@@ -153,18 +152,8 @@ export default function Profile() {
     }
   };
 
-  const handlePremiumCheckout = async () => {
-    if (!userId) return;
-
-    setLoadingPremium(true);
-    try {
-      const { checkout_url } = await paymentsService.createCheckoutSession('monthly');
-      window.location.href = checkout_url;
-    } catch {
-      toast.error('No se pudo iniciar el pago premium');
-    } finally {
-      setLoadingPremium(false);
-    }
+  const handlePremiumCheckout = () => {
+    navigate('/plans');
   };
 
   return (
@@ -404,15 +393,10 @@ export default function Profile() {
                 <button
                   type="button"
                   onClick={handlePremiumCheckout}
-                  disabled={loadingPremium}
-                  className="w-full h-8 px-3 bg-secondary hover:bg-accent text-foreground rounded-[3px] text-[11px] font-medium transition-colors inline-flex items-center justify-center gap-1.5 disabled:opacity-50"
+                  className="w-full h-8 px-3 bg-secondary hover:bg-accent text-foreground rounded-[3px] text-[11px] font-medium transition-colors inline-flex items-center justify-center gap-1.5"
                 >
-                  {loadingPremium ? (
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  ) : (
-                    <Crown className="w-3.5 h-3.5 text-primary" />
-                  )}
-                  Premium
+                  <Crown className="w-3.5 h-3.5 text-primary" />
+                  Ver planes premium
                 </button>
               )}
             </div>

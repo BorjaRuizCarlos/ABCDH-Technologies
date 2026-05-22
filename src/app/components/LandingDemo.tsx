@@ -1,32 +1,27 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { motion } from 'motion/react';
-import { Activity, Bell, Briefcase, CheckCircle2, ChevronRight, CircleUser, FileText, LayoutGrid, Shield, Sparkles, Users } from 'lucide-react';
+import { Activity, Bell, Briefcase, CheckCircle2, ChevronRight, CircleUser, FileText, LayoutGrid, RefreshCw, Settings2, Shield, Sparkles, Users } from 'lucide-react';
 import { KPICard } from './KPICard';
 import { ADOTabs } from './ADOTabs';
 import { DataTable, type DataTableColumn } from './DataTable';
 import { EmptyState } from './EmptyState';
 import { StatusBadge } from './StatusBadge';
 import { LANDING_DEMO_DATA, type LandingDemoProject, type LandingDemoView } from '../data/landingDemoData';
-import { getUserRoleLabel, type UserRole } from '../utils/roles';
 
 const VIEW_LABELS: Record<LandingDemoView, string> = {
   dashboard: 'Dashboard',
   projects: 'Proyectos',
-  'project-detail': 'Detalle',
   reports: 'Reportes',
   alerts: 'Alertas',
   profile: 'Perfil',
   settings: 'Configuración',
 };
 
-const ROLE_ORDER: UserRole[] = ['admin', 'project_manager', 'stakeholder', 'user'];
+const DEMO_ROLE = 'project_manager' as const;
 
-const roleToneMap: Record<UserRole, string> = {
-  admin: 'bg-primary/10 text-primary border-primary/20',
+const roleToneMap = {
   project_manager: 'bg-info/10 text-info border-info/20',
-  stakeholder: 'bg-success/10 text-success border-success/20',
-  user: 'bg-muted text-muted-foreground border-border',
-};
+} as const;
 
 const metricIconMap = {
   primary: LayoutGrid,
@@ -57,12 +52,13 @@ function DemoShell({ children }: { children: ReactNode }) {
 }
 
 export function LandingDemo() {
-  const [role, setRole] = useState<UserRole>('project_manager');
   const [view, setView] = useState<LandingDemoView>('dashboard');
-  const [selectedProjectId, setSelectedProjectId] = useState<number>(LANDING_DEMO_DATA.project_manager.projects[0]?.id ?? 0);
-  const [detailTab, setDetailTab] = useState('summary');
+  const [selectedProjectId, setSelectedProjectId] = useState<number>(LANDING_DEMO_DATA[DEMO_ROLE].projects[0]?.id ?? 0);
+  const [detailTab, setDetailTab] = useState<'resumen' | 'backlog' | 'timeline' | 'sprints' | 'boards' | 'milestones' | 'code-review' | 'repositorios' | 'equipo' | 'configuracion'>('resumen');
+  const isStakeholderView = false;
+  const canEditProfileSettings = true;
 
-  const roleData = LANDING_DEMO_DATA[role];
+  const roleData = LANDING_DEMO_DATA[DEMO_ROLE];
   const visibleViews = roleData.views;
   const activeView = visibleViews.includes(view) ? view : visibleViews[0];
   const selectedProject = roleData.projects.find((project) => project.id === selectedProjectId) ?? roleData.projects[0];
@@ -70,8 +66,12 @@ export function LandingDemo() {
   useEffect(() => {
     setView((current) => (visibleViews.includes(current) ? current : visibleViews[0]));
     setSelectedProjectId(roleData.projects[0]?.id ?? 0);
-    setDetailTab('summary');
-  }, [role, roleData.projects, visibleViews]);
+    setDetailTab('resumen');
+  }, [roleData.projects, visibleViews]);
+
+  useEffect(() => {
+    setDetailTab('resumen');
+  }, [selectedProjectId]);
 
   const columns = useMemo<DataTableColumn<LandingDemoProject>[]>(() => [
     {
@@ -145,7 +145,7 @@ export function LandingDemo() {
           Una vista simulada que se siente parte de la plataforma
         </h2>
         <p className="text-sm md:text-base text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-          Cambia de rol, navega entre vistas internas y revisa datos mock locales usando el mismo lenguaje visual, los mismos radios y la misma jerarquía que el resto del producto.
+          Navega entre vistas internas y revisa datos mock locales usando el mismo lenguaje visual, los mismos radios y la misma jerarquía que el resto del producto.
         </p>
       </div>
 
@@ -157,28 +157,11 @@ export function LandingDemo() {
                 <Shield className="w-3.5 h-3.5" />
                 Contexto de demo
               </div>
-              <div className={`inline-flex items-center gap-2 px-2.5 py-1 rounded-[3px] border text-[11px] font-medium ${roleToneMap[role]}`}>
+              <div className={`inline-flex items-center gap-2 px-2.5 py-1 rounded-[3px] border text-[11px] font-medium ${roleToneMap[DEMO_ROLE]}`}>
                 <CircleUser className="w-3.5 h-3.5" />
-                {getUserRoleLabel(role)} · {roleData.label}
+                {roleData.label} · Vista fija de demo
               </div>
               <p className="mt-3 text-[12px] leading-5 text-muted-foreground">{roleData.description}</p>
-            </div>
-
-            <div>
-              <div className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground mb-2">Cambiar perfil</div>
-              <div className="grid grid-cols-2 gap-2">
-                {ROLE_ORDER.map((candidate) => (
-                  <button
-                    key={candidate}
-                    type="button"
-                    onClick={() => setRole(candidate)}
-                    className={`rounded-[3px] border px-2.5 py-2 text-left text-[11px] font-medium transition-colors ${candidate === role ? 'border-primary bg-primary/10 text-foreground' : 'border-border bg-card text-muted-foreground hover:bg-accent hover:text-foreground'}`}
-                  >
-                    <div className="font-semibold text-[11px] text-foreground">{getUserRoleLabel(candidate)}</div>
-                    <div className="mt-0.5 text-[10px] text-muted-foreground">{LANDING_DEMO_DATA[candidate].audience}</div>
-                  </button>
-                ))}
-              </div>
             </div>
 
             <div>
@@ -294,127 +277,172 @@ export function LandingDemo() {
                       density="compact"
                       onRowClick={(project) => {
                         setSelectedProjectId(project.id);
-                        if (visibleViews.includes('project-detail')) {
-                          setView('project-detail');
-                        }
+                        setDetailTab('resumen');
+                        setView('projects');
                       }}
                     />
                   </div>
-                </div>
-              )}
 
-              {activeView === 'project-detail' && selectedProject && (
-                <div className="grid xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] gap-3">
-                  <div className="rounded-[4px] border border-border bg-card p-4 space-y-4">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
+                  {selectedProject && (
+                    <div className="rounded-[4px] border border-border bg-card overflow-hidden">
+                      <div className="px-4 py-3 border-b border-border bg-surface-secondary/40">
                         <div className="text-[10px] uppercase tracking-[0.08em] text-muted-foreground mb-1">Detalle del proyecto</div>
                         <div className="text-[18px] font-semibold text-foreground truncate">{selectedProject.name}</div>
                         <div className="mt-1 text-[12px] text-muted-foreground">{selectedProject.scope}</div>
                       </div>
-                      <StatusBadge status={projectHealthStatus(selectedProject.health)} text={selectedProject.dueLabel} variant="pill" size="sm" />
-                    </div>
 
-                    <div className="grid sm:grid-cols-3 gap-2">
-                      <div className="rounded-[3px] border border-border bg-background p-3">
-                        <div className="text-[10px] uppercase tracking-[0.08em] text-muted-foreground mb-1">Avance</div>
-                        <div className="text-[18px] font-semibold text-foreground">{selectedProject.progress}%</div>
+                      <div className="px-3 pt-3">
+                        <ADOTabs
+                          tabs={[
+                            { id: 'resumen', label: 'Overview', icon: <LayoutGrid className="w-3.5 h-3.5" /> },
+                            { id: 'backlog', label: 'Backlog', icon: <FileText className="w-3.5 h-3.5" /> },
+                            { id: 'timeline', label: 'Timeline', icon: <Activity className="w-3.5 h-3.5" /> },
+                            { id: 'sprints', label: 'Sprints', icon: <RefreshCw className="w-3.5 h-3.5" /> },
+                            { id: 'boards', label: 'Boards', icon: <LayoutGrid className="w-3.5 h-3.5" /> },
+                            { id: 'milestones', label: 'Milestones', icon: <Sparkles className="w-3.5 h-3.5" /> },
+                            { id: 'code-review', label: 'Code Review', icon: <Shield className="w-3.5 h-3.5" /> },
+                            { id: 'repositorios', label: 'Repositorios', icon: <Briefcase className="w-3.5 h-3.5" /> },
+                            { id: 'equipo', label: 'Equipo', count: selectedProject.teamSize, icon: <Users className="w-3.5 h-3.5" /> },
+                            { id: 'configuracion', label: 'Configuración', icon: <Settings2 className="w-3.5 h-3.5" /> },
+                          ]}
+                          activeTab={detailTab}
+                          onTabChange={(id) => setDetailTab(id as typeof detailTab)}
+                        />
                       </div>
-                      <div className="rounded-[3px] border border-border bg-background p-3">
-                        <div className="text-[10px] uppercase tracking-[0.08em] text-muted-foreground mb-1">Budget</div>
-                        <div className="text-[18px] font-semibold text-foreground">{selectedProject.budgetUsage}</div>
-                      </div>
-                      <div className="rounded-[3px] border border-border bg-background p-3">
-                        <div className="text-[10px] uppercase tracking-[0.08em] text-muted-foreground mb-1">Equipo</div>
-                        <div className="text-[18px] font-semibold text-foreground">{selectedProject.teamSize}</div>
-                      </div>
-                    </div>
 
-                    <div>
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="text-[12px] font-semibold text-foreground">Progreso global</div>
-                        <div className="text-[11px] text-muted-foreground">Última actualización {selectedProject.lastUpdate}</div>
-                      </div>
-                      <div className="h-2 rounded-full bg-muted overflow-hidden">
-                        <div className="h-full rounded-full bg-primary" style={{ width: `${selectedProject.progress}%` }} />
-                      </div>
-                    </div>
-
-                    <ADOTabs
-                      tabs={[
-                        { id: 'summary', label: 'Resumen', icon: <FileText className="w-3.5 h-3.5" /> },
-                        { id: 'activity', label: 'Actividad', icon: <Activity className="w-3.5 h-3.5" /> },
-                        { id: 'risks', label: 'Riesgos', icon: <Bell className="w-3.5 h-3.5" /> },
-                      ]}
-                      activeTab={detailTab}
-                      onTabChange={setDetailTab}
-                    />
-
-                    <div className="rounded-[3px] border border-border bg-background p-3">
-                      {detailTab === 'summary' && (
-                        <div className="grid md:grid-cols-2 gap-3 text-[12px]">
-                          <div>
-                            <div className="text-[10px] uppercase tracking-[0.08em] text-muted-foreground mb-1">Owner</div>
-                            <div className="font-medium text-foreground">{selectedProject.owner}</div>
-                          </div>
-                          <div>
-                            <div className="text-[10px] uppercase tracking-[0.08em] text-muted-foreground mb-1">Próximo hito</div>
-                            <div className="font-medium text-foreground">{selectedProject.nextMilestone}</div>
-                          </div>
-                        </div>
-                      )}
-                      {detailTab === 'activity' && (
-                        <div className="space-y-2 text-[12px]">
-                          <div className="flex items-start gap-2">
-                            <span className="mt-1 w-2 h-2 rounded-full bg-success shrink-0" />
-                            <div>
-                              <div className="font-medium text-foreground">Se cerró una validación de QA</div>
-                              <div className="text-muted-foreground">Se marcaron como resueltos dos comentarios de integración.</div>
+                      <div className="p-4 space-y-4">
+                        {detailTab === 'resumen' && (
+                          <div className="space-y-3">
+                            <div className="grid sm:grid-cols-3 gap-2">
+                              <div className="rounded-[3px] border border-border bg-background p-3">
+                                <div className="text-[10px] uppercase tracking-[0.08em] text-muted-foreground mb-1">Avance</div>
+                                <div className="text-[18px] font-semibold text-foreground">{selectedProject.progress}%</div>
+                              </div>
+                              <div className="rounded-[3px] border border-border bg-background p-3">
+                                <div className="text-[10px] uppercase tracking-[0.08em] text-muted-foreground mb-1">Budget</div>
+                                <div className="text-[18px] font-semibold text-foreground">{selectedProject.budgetUsage}</div>
+                              </div>
+                              <div className="rounded-[3px] border border-border bg-background p-3">
+                                <div className="text-[10px] uppercase tracking-[0.08em] text-muted-foreground mb-1">Equipo</div>
+                                <div className="text-[18px] font-semibold text-foreground">{selectedProject.teamSize}</div>
+                              </div>
+                            </div>
+                            <div className="rounded-[3px] border border-border bg-background p-3">
+                              <div className="text-[10px] uppercase tracking-[0.08em] text-muted-foreground mb-1">Owner</div>
+                              <div className="font-medium text-foreground">{selectedProject.owner}</div>
+                            </div>
+                            <div className="rounded-[3px] border border-border bg-background p-3">
+                              <div className="text-[10px] uppercase tracking-[0.08em] text-muted-foreground mb-1">Próximo hito</div>
+                              <div className="font-medium text-foreground">{selectedProject.nextMilestone}</div>
+                            </div>
+                            <div className="rounded-[3px] border border-border bg-background p-3">
+                              <div className="flex items-center justify-between gap-2 mb-2">
+                                <div className="text-[12px] font-semibold text-foreground">Progreso global</div>
+                                <div className="text-[11px] text-muted-foreground">Última actualización {selectedProject.lastUpdate}</div>
+                              </div>
+                              <div className="h-2 rounded-full bg-muted overflow-hidden">
+                                <div className="h-full rounded-full bg-primary" style={{ width: `${selectedProject.progress}%` }} />
+                              </div>
                             </div>
                           </div>
-                          <div className="flex items-start gap-2">
-                            <span className="mt-1 w-2 h-2 rounded-full bg-warning shrink-0" />
-                            <div>
-                              <div className="font-medium text-foreground">Se actualizó el forecast</div>
-                              <div className="text-muted-foreground">La fecha de revisión se movió para consolidar dependencias.</div>
+                        )}
+
+                        {detailTab === 'backlog' && (
+                          <div className="space-y-2 text-[12px]">
+                            <div className="rounded-[3px] border border-border bg-background p-3">
+                              <div className="font-medium text-foreground">Historias priorizadas</div>
+                              <div className="text-muted-foreground">3 tareas listas para sprint y 2 en refinamiento.</div>
+                            </div>
+                            <div className="rounded-[3px] border border-border bg-background p-3">
+                              <div className="font-medium text-foreground">Bloqueos activos</div>
+                              <div className="text-muted-foreground">Una dependencia externa pendiente de confirmación.</div>
                             </div>
                           </div>
-                        </div>
-                      )}
-                      {detailTab === 'risks' && (
-                        <div className="space-y-2 text-[12px]">
-                          <div className="rounded-[3px] border border-border bg-card p-2.5">
-                            <div className="font-medium text-foreground">Dependencia externa en revisión</div>
-                            <div className="text-muted-foreground">La entrega final está condicionada a una aprobación pendiente.</div>
-                          </div>
-                          <div className="rounded-[3px] border border-border bg-card p-2.5">
-                            <div className="font-medium text-foreground">Capacidad del equipo ajustada</div>
-                            <div className="text-muted-foreground">El sprint requiere redistribuir una tarea de soporte.</div>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
+                        )}
 
-                  <div className="space-y-3">
-                    <div className="rounded-[4px] border border-border bg-card p-4">
-                      <div className="text-[12px] font-semibold text-foreground mb-3">Señales rápidas</div>
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between gap-2 text-[12px]"><span className="text-muted-foreground">Riesgo general</span><StatusBadge status={projectHealthStatus(selectedProject.health)} variant="pill" size="sm" text={selectedProject.health === 'danger' ? 'Crítico' : selectedProject.health === 'success' ? 'Estable' : 'Atención'} /></div>
-                        <div className="flex items-center justify-between gap-2 text-[12px]"><span className="text-muted-foreground">Entrega próxima</span><span className="font-medium text-foreground">{selectedProject.dueLabel}</span></div>
-                        <div className="flex items-center justify-between gap-2 text-[12px]"><span className="text-muted-foreground">Equipo asignado</span><span className="font-medium text-foreground">{selectedProject.teamSize} miembros</span></div>
+                        {detailTab === 'timeline' && (
+                          <div className="space-y-2 text-[12px]">
+                            <div className="rounded-[3px] border border-border bg-background p-3 flex items-center justify-between gap-2">
+                              <span className="text-muted-foreground">Inicio estimado</span>
+                              <span className="font-medium text-foreground">Hace 4 semanas</span>
+                            </div>
+                            <div className="rounded-[3px] border border-border bg-background p-3 flex items-center justify-between gap-2">
+                              <span className="text-muted-foreground">Próxima entrega</span>
+                              <span className="font-medium text-foreground">{selectedProject.dueLabel}</span>
+                            </div>
+                          </div>
+                        )}
+
+                        {detailTab === 'sprints' && (
+                          <div className="space-y-2 text-[12px]">
+                            <div className="rounded-[3px] border border-border bg-background p-3">
+                              <div className="font-medium text-foreground">Sprint actual</div>
+                              <div className="text-muted-foreground">En progreso con seguimiento diario activo.</div>
+                            </div>
+                            <div className="rounded-[3px] border border-border bg-background p-3">
+                              <div className="font-medium text-foreground">Siguiente sprint</div>
+                              <div className="text-muted-foreground">Planificado para continuar refinamiento y QA.</div>
+                            </div>
+                          </div>
+                        )}
+
+                        {detailTab === 'boards' && (
+                          <div className="space-y-2 text-[12px]">
+                            <div className="rounded-[3px] border border-border bg-background p-3">
+                              <div className="font-medium text-foreground">Board principal</div>
+                              <div className="text-muted-foreground">Flujo Kanban con columnas activas y finalizadas.</div>
+                            </div>
+                          </div>
+                        )}
+
+                        {detailTab === 'milestones' && (
+                          <div className="space-y-2 text-[12px]">
+                            <div className="rounded-[3px] border border-border bg-background p-3">
+                              <div className="font-medium text-foreground">Milestone en curso</div>
+                              <div className="text-muted-foreground">Pendiente de cerrar validaciones de integración.</div>
+                            </div>
+                          </div>
+                        )}
+
+                        {detailTab === 'code-review' && (
+                          <div className="space-y-2 text-[12px]">
+                            <div className="rounded-[3px] border border-border bg-background p-3">
+                              <div className="font-medium text-foreground">Revisión activa</div>
+                              <div className="text-muted-foreground">Pull requests pendientes de aprobación y merge.</div>
+                            </div>
+                          </div>
+                        )}
+
+                        {detailTab === 'repositorios' && (
+                          <div className="space-y-2 text-[12px]">
+                            <div className="rounded-[3px] border border-border bg-background p-3">
+                              <div className="font-medium text-foreground">Repositorio enlazado</div>
+                              <div className="text-muted-foreground">Conexión al repositorio principal del proyecto.</div>
+                            </div>
+                          </div>
+                        )}
+
+                        {detailTab === 'equipo' && (
+                          <div className="space-y-2 text-[12px]">
+                            <div className="rounded-[3px] border border-border bg-background p-3 flex items-center justify-between gap-2">
+                              <span className="text-muted-foreground">Miembros</span>
+                              <span className="font-medium text-foreground">{selectedProject.teamSize}</span>
+                            </div>
+                            <div className="rounded-[3px] border border-border bg-background p-3">
+                              <div className="font-medium text-foreground">Colaboradores activos</div>
+                              <div className="text-muted-foreground">Equipo asignado a la entrega y seguimiento diario.</div>
+                            </div>
+                          </div>
+                        )}
+
+                        {detailTab === 'configuracion' && (
+                          <div className="rounded-[3px] border border-border bg-background p-3 text-[12px] text-muted-foreground">
+                            Configuración del proyecto disponible en la vista real después de iniciar sesión.
+                          </div>
+                        )}
                       </div>
                     </div>
-
-                    <div className="rounded-[4px] border border-border bg-card p-4">
-                      <div className="text-[12px] font-semibold text-foreground mb-3">Estructura de la vista</div>
-                      <div className="space-y-2 text-[12px] text-muted-foreground">
-                        <div className="flex items-center gap-2"><LayoutGrid className="w-3.5 h-3.5" /> KPI y encabezado contextual</div>
-                        <div className="flex items-center gap-2"><Users className="w-3.5 h-3.5" /> Equipo y responsables</div>
-                        <div className="flex items-center gap-2"><Briefcase className="w-3.5 h-3.5" /> Mapa de riesgo y próximos pasos</div>
-                      </div>
-                    </div>
-                  </div>
+                  )}
                 </div>
               )}
 
@@ -456,7 +484,7 @@ export function LandingDemo() {
                       <StatusBadge status="info" variant="pill" size="sm" text="Semanal" />
                     </div>
                     <div className="space-y-2">
-                      {role === 'stakeholder' ? (
+                      {isStakeholderView ? (
                         <EmptyState icon="inbox" title={roleData.emptyStates.reports.title} description={roleData.emptyStates.reports.description} />
                       ) : (
                         [
@@ -543,7 +571,7 @@ export function LandingDemo() {
                       <StatusBadge status="neutral" variant="pill" size="sm" text="Solo lectura" />
                     </div>
 
-                    {role === 'admin' || role === 'project_manager' ? (
+                    {canEditProfileSettings ? (
                       <div className="grid md:grid-cols-2 gap-2">
                         <div className="rounded-[3px] border border-border bg-background p-3">
                           <div className="text-[10px] uppercase tracking-[0.08em] text-muted-foreground mb-1">Notificaciones</div>

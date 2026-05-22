@@ -1,7 +1,7 @@
 import type { UserRole } from '../utils/roles';
 import type { ProjectWorkflowStatus } from '../utils/projectStatus';
 
-export type LandingDemoView = 'dashboard' | 'projects' | 'project-detail' | 'reports' | 'alerts' | 'profile' | 'settings';
+export type LandingDemoView = 'dashboard' | 'projects' | 'reports' | 'alerts' | 'profile' | 'settings';
 
 export interface LandingDemoMetric {
   title: string;
@@ -123,7 +123,7 @@ export const LANDING_DEMO_DATA: Record<UserRole, LandingDemoRoleConfig> = {
     label: 'Admin',
     description: 'Visibilidad completa del portafolio, usuarios y alertas operativas.',
     audience: 'Dirección de plataforma y operación.',
-    views: ['dashboard', 'projects', 'project-detail', 'reports', 'alerts', 'profile', 'settings'],
+    views: ['dashboard', 'projects', 'reports', 'alerts', 'profile', 'settings'],
     metrics: [
       { title: 'Proyectos activos', value: '24', delta: '+3 esta semana', tone: 'primary' },
       { title: 'Salud del portafolio', value: '78%', delta: '+6 pts vs. mes anterior', tone: 'success' },
@@ -175,7 +175,7 @@ export const LANDING_DEMO_DATA: Record<UserRole, LandingDemoRoleConfig> = {
     label: 'Project Manager',
     description: 'Seguimiento operativo, riesgos y coordinación de entregas.',
     audience: 'Gestión de proyectos y delivery.',
-    views: ['dashboard', 'projects', 'project-detail', 'reports', 'alerts', 'profile', 'settings'],
+    views: ['dashboard', 'projects', 'reports', 'alerts', 'profile', 'settings'],
     metrics: [
       { title: 'Proyectos en curso', value: '9', delta: '+2 en revisión', tone: 'primary' },
       { title: 'Tareas vencidas', value: '3', delta: '-2 desde ayer', tone: 'warning' },

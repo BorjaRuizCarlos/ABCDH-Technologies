@@ -38,6 +38,16 @@ export const authService = {
     );
   },
 
+  /**
+   * Starts the Google auth flow by sending the browser to the backend.
+   * The backend should redirect back to /auth/google/callback on the frontend.
+   */
+  startGoogleLogin(): void {
+    const apiBase = import.meta.env.VITE_API_TARGET;
+    const startUrl = import.meta.env.VITE_GOOGLE_AUTH_START_URL ?? `${apiBase}/auth/google/start/`;
+    window.location.href = startUrl;
+  },
+
   /** Remove tokens from storage (client-side logout). */
   logout(): void {
     tokenStore.clear();

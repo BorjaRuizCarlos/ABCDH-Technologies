@@ -22,11 +22,12 @@ const Profile = lazy(() => import('./pages/Profile'));
 const Settings = lazy(() => import('./pages/Settings'));
 const Reports = lazy(() => import('./pages/Reports'));
 const Alerts = lazy(() => import('./pages/Alerts'));
-const CreateUsers = lazy(() => import('./pages/CreateUsers'));
 const GitHub = lazy(() => import('./pages/GitHub'));
 const AzureRet = lazy(() => import('./pages/AzureRet'));
 const PaymentSuccess = lazy(() => import('./pages/PaymentSuccess'));
 const PaymentCancel = lazy(() => import('./pages/PaymentCancel'));
+const Plans = lazy(() => import('./pages/Plans'));
+const GoogleAuthCallback = lazy(() => import('./pages/GoogleAuthCallback'));
 
 function withSuspense(Component: React.LazyExoticComponent<React.ComponentType>, Fallback: React.ComponentType = GenericPageSkeleton) {
   return (
@@ -46,6 +47,10 @@ export const router = createBrowserRouter([
     element: <Login />,
   },
   {
+    path: '/auth/google/callback',
+    element: withSuspense(GoogleAuthCallback),
+  },
+  {
     path: '/',
     element: <AppLayout />,
     children: [
@@ -57,9 +62,9 @@ export const router = createBrowserRouter([
       { path: 'settings', element: withSuspense(Settings) },
       { path: 'reports', element: withSuspense(Reports) },
       { path: 'alerts', element: withSuspense(Alerts) },
-      { path: 'users', element: withSuspense(CreateUsers) },
       { path: 'github', element: withSuspense(GitHub) },
       { path: 'azure-ret', element: withSuspense(AzureRet) },
+      { path: 'plans', element: withSuspense(Plans) },
       { path: 'payment/success', element: withSuspense(PaymentSuccess) },
       { path: 'payment/cancel', element: withSuspense(PaymentCancel) },
     ],

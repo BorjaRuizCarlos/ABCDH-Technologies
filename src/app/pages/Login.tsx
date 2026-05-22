@@ -1,15 +1,17 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
-import { Eye, EyeOff, Lock, Mail, ArrowRight, BarChart3, Bell, Brain } from 'lucide-react';
+import { Eye, EyeOff, Lock, Mail, ArrowRight, BarChart3, Bell, Brain, Globe } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { LoadingButton } from '../components/LoadingButton';
 import { toast } from 'sonner';
+import { authService } from '../../services';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const navigate = useNavigate();
   const { login } = useAuth();
 
@@ -31,6 +33,11 @@ export default function Login() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleGoogleLogin = () => {
+    setIsGoogleLoading(true);
+    authService.startGoogleLogin();
   };
 
   return (
@@ -161,6 +168,22 @@ export default function Login() {
               Iniciar Sesión
               <ArrowRight className="w-3.5 h-3.5" />
             </LoadingButton>
+
+            <div className="flex items-center gap-3 py-1">
+              <div className="h-px flex-1 bg-border" />
+              <span className="text-[11px] text-muted-foreground uppercase tracking-[0.08em]">o</span>
+              <div className="h-px flex-1 bg-border" />
+            </div>
+
+            <button
+              type="button"
+              onClick={handleGoogleLogin}
+              disabled={isGoogleLoading}
+              className="w-full inline-flex items-center justify-center gap-2 rounded-[3px] border border-border bg-card px-4 py-2.5 text-[13px] font-semibold text-foreground transition-colors hover:bg-accent disabled:opacity-60"
+            >
+              <Globe className="w-3.5 h-3.5 text-primary" />
+              {isGoogleLoading ? 'Redirigiendo...' : 'Continuar con Google'}
+            </button>
 
           </form>
           <div className="text-center mt-4">

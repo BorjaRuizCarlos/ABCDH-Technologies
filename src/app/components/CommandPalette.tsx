@@ -30,7 +30,6 @@ interface NavCommand {
   name: string;
   path: string;
   icon: React.ComponentType<{ className?: string }>;
-  roles?: string[];
   keywords?: string;
 }
 
@@ -46,7 +45,7 @@ const navCommands: NavCommand[] = [
 export function CommandPalette() {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const { data: allProjects } = useApiProjects();
 
@@ -67,11 +66,6 @@ export function CommandPalette() {
     command();
   }, []);
 
-  const filteredNav = navCommands.filter((item) => {
-    if (!item.roles) return true;
-    return user && item.roles.includes(user.role);
-  });
-
   return (
     <>
       {open && (
@@ -87,7 +81,7 @@ export function CommandPalette() {
 
         {/* Navigation */}
         <CommandGroup heading="Navegación">
-          {filteredNav.map((item) => {
+          {navCommands.map((item) => {
             const Icon = item.icon;
             return (
               <CommandItem
